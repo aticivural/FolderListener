@@ -4,23 +4,32 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
-public class Main {
+public class FolderListener {
 
     public static void main(String[] args) {
+        TimerTask task = new RunMeTask();
 
+        Timer timer = new Timer();
+        //calistirdiktan  1 sn sonra folder i dinlemeye baslayacak her 5 dakikada bir guncelleyecek 
+        timer.schedule(task, 1000,300000);
+    }
+
+    public static void listenToFolder(){
         //define a folder root
         Path myDir = Paths.get("D:/data");
 
         try {
             WatchService watcher = myDir.getFileSystem().newWatchService();
             myDir.register(watcher, ENTRY_CREATE,
-                                    ENTRY_DELETE,
-                                    ENTRY_MODIFY);
+                    ENTRY_DELETE,
+                    ENTRY_MODIFY);
 
             WatchKey watckKey = watcher.take();
 
@@ -42,4 +51,13 @@ public class Main {
             System.out.println("Error: " + e.toString());
         }
     }
+
+    private static class RunMeTask extends TimerTask
+    {
+        @Override
+        public void run() {
+            FolderListener.listenToFolder();
+        }
+    }
 }
+
